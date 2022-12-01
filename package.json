@@ -5,18 +5,6 @@
   "main": "src/index.tsx",
   "source": "src/index.tsx",
   "sideEffects": false,
-  "files": [
-    "src",
-    "lib",
-    "android",
-    "ios",
-    "common",
-    "jest",
-    "*.podspec",
-    "react-native.config.js",
-    "!**/__tests__",
-    "!example"
-  ],
   "author": "Janic Duplessis <janicduplessis@gmail.com>",
   "contributors": [
     "Evan Bacon <bacon@expo.io> (https://github.com/evanbacon)"
@@ -24,15 +12,6 @@
   "homepage": "https://github.com/th3rdwave/react-native-safe-area-context#readme",
   "license": "MIT",
   "scripts": {
-    "start": "react-native start",
-    "test": "yarn validate:prettier && yarn validate:eslint && yarn validate:typescript && yarn validate:jest",
-    "validate:eslint": "eslint \"src/**/*.{js,ts,tsx}\" \"example/**/*.{js,ts,tsx}\" \"fabric-example/**/*.{js,ts,tsx}\"",
-    "validate:typescript": "tsc --project ./ --noEmit",
-    "validate:prettier": "prettier \"src/**/*.{js,ts,tsx}\" \"example/**/*.{js,ts,tsx}\" \"fabric-example/**/*.{js,ts,tsx}\" --check",
-    "validate:jest": "jest",
-    "release": "release-it",
-    "prepublish": "yarn test",
-    "prepare": "bob build"
   },
   "keywords": [
     "react-native",
@@ -50,6 +29,7 @@
     "react-native": "*"
   },
   "devDependencies": {
+    "react-native-reanimated": "next",
     "@commitlint/config-conventional": "^17.0.3",
     "@react-native-community/eslint-config": "^3.1.0",
     "@react-native/eslint-plugin-specs": "^0.71.0",

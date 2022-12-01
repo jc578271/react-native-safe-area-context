@@ -7,10 +7,11 @@ import type {
   Metrics,
   Rect,
 } from './SafeArea.types';
+import { SharedValue, useSharedValue } from "react-native-reanimated";
 
 const isDev = process.env.NODE_ENV !== 'production';
 
-export const SafeAreaInsetsContext = React.createContext<EdgeInsets | null>(
+export const SafeAreaInsetsContext = React.createContext<SharedValue<EdgeInsets|null> | null>(
   null,
 );
 if (isDev) {
@@ -32,57 +33,36 @@ export interface SafeAreaProviderProps extends ViewProps {
 }
 
 export function SafeAreaProvider({
-  children,
-  initialMetrics,
-  initialSafeAreaInsets,
-  style,
-  ...others
+ children,
+ initialMetrics,
+ initialSafeAreaInsets,
+ style,
+ ...others
 }: SafeAreaProviderProps) {
-  const parentInsets = useParentSafeAreaInsets();
-  const parentFrame = useParentSafeAreaFrame();
-  const [insets, setInsets] = React.useState<EdgeInsets | null>(
-    initialMetrics?.insets ?? initialSafeAreaInsets ?? parentInsets ?? null,
+
+  console.log(initialMetrics?.insets ?? initialSafeAreaInsets ?? null);
+  const insets = useSharedValue<EdgeInsets | null>(
+    initialMetrics?.insets ?? initialSafeAreaInsets ?? null,
   );
-  const [frame, setFrame] = React.useState<Rect>(
+
+  const frame = React.useMemo<Rect>(() =>
     initialMetrics?.frame ??
-      parentFrame ?? {
-        // Backwards compat so we render anyway if we don't have frame.
-        x: 0,
-        y: 0,
-        width: Dimensions.get('window').width,
-        height: Dimensions.get('window').height,
-      },
+    {
+      // Backwards compat so we render anyway if we don't have frame.
+      x: 0,
+      y: 0,
+      width: Dimensions.get('window').width,
+      height: Dimensions.get('window').height,
+    },[]
   );
   const onInsetsChange = React.useCallback(
     (event: InsetChangedEvent) => {
       const {
-        nativeEvent: { frame: nextFrame, insets: nextInsets },
+        nativeEvent: { insets: nextInsets },
       } = event;
-
-      console.log(nextFrame, nextInsets);
-
-      if (
-        // Backwards compat with old native code that won't send frame.
-        nextFrame &&
-        (nextFrame.height !== frame.height ||
-          nextFrame.width !== frame.width ||
-          nextFrame.x !== frame.x ||
-          nextFrame.y !== frame.y)
-      ) {
-        setFrame(nextFrame);
-      }
-
-      if (
-        !insets ||
-        nextInsets.bottom !== insets.bottom ||
-        nextInsets.left !== insets.left ||
-        nextInsets.right !== insets.right ||
-        nextInsets.top !== insets.top
-      ) {
-        setInsets(nextInsets);
-      }
+      insets.value = nextInsets
     },
-    [frame, insets],
+    [insets],
   );
 
   return (
@@ -106,7 +86,7 @@ const styles = StyleSheet.create({
   fill: { flex: 1 },
 });
 
-function useParentSafeAreaInsets(): EdgeInsets | null {
+function useParentSafeAreaInsets() {
   return React.useContext(SafeAreaInsetsContext);
 }
 
@@ -117,7 +97,7 @@ function useParentSafeAreaFrame(): Rect | null {
 const NO_INSETS_ERROR =
   'No safe area value available. Make sure you are rendering `<SafeAreaProvider>` at the top of your app.';
 
-export function useSafeAreaInsets(): EdgeInsets {
+export function useSafeAreaInsets() {
   const safeArea = React.useContext(SafeAreaInsetsContext);
   if (safeArea == null) {
     throw new Error(NO_INSETS_ERROR);
@@ -137,27 +117,10 @@ export type WithSafeAreaInsetsProps = {
   insets: EdgeInsets;
 };
 
-export function withSafeAreaInsets<T>(
-  WrappedComponent: React.ComponentType<T & WithSafeAreaInsetsProps>,
-): React.ForwardRefExoticComponent<
-  React.PropsWithoutRef<T> & React.RefAttributes<unknown>
-> {
-  return React.forwardRef((props: T, ref: React.Ref<unknown>) => (
-    <SafeAreaInsetsContext.Consumer>
-      {(insets) => {
-        if (insets == null) {
-          throw new Error(NO_INSETS_ERROR);
-        }
-        return <WrappedComponent {...props} insets={insets} ref={ref} />;
-      }}
-    </SafeAreaInsetsContext.Consumer>
-  ));
-}
-
 /**
  * @deprecated
  */
-export function useSafeArea(): EdgeInsets {
+export function useSafeArea() {
   return useSafeAreaInsets();
 }
 
