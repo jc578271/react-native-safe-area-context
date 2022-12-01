@@ -2,16 +2,18 @@ import * as React from 'react';
 import { Dimensions, StyleSheet, ViewProps } from 'react-native';
 import { NativeSafeAreaProvider } from './NativeSafeAreaProvider';
 import type {
+  AEdgeInsets,
   EdgeInsets,
   InsetChangedEvent,
   Metrics,
   Rect,
 } from './SafeArea.types';
-import { SharedValue, useSharedValue } from "react-native-reanimated";
+import { useDerivedValue, useSharedValue } from "react-native-reanimated";
+import { useMemo } from "react";
 
 const isDev = process.env.NODE_ENV !== 'production';
 
-export const SafeAreaInsetsContext = React.createContext<SharedValue<EdgeInsets|null> | null>(
+export const SafeAreaInsetsContext = React.createContext<AEdgeInsets | null>(
   null,
 );
 if (isDev) {
@@ -39,8 +41,6 @@ export function SafeAreaProvider({
  style,
  ...others
 }: SafeAreaProviderProps) {
-
-  console.log(initialMetrics?.insets ?? initialSafeAreaInsets ?? null);
   const insets = useSharedValue<EdgeInsets | null>(
     initialMetrics?.insets ?? initialSafeAreaInsets ?? null,
   );
@@ -65,6 +65,24 @@ export function SafeAreaProvider({
     [insets],
   );
 
+  const aTop = useDerivedValue(() => insets.value ? insets.value.top : 0, [insets])
+  const aBottom = useDerivedValue(() => insets.value ? insets.value.bottom : 0, [insets])
+  const aLeft = useDerivedValue(() => insets.value ? insets.value.left : 0, [insets])
+  const aRight = useDerivedValue(() => insets.value ? insets.value.right : 0, [insets])
+
+
+  const aInset = useMemo(() => ({
+    aTop,
+    aBottom,
+    aLeft,
+    aRight
+  }), [
+    aTop,
+    aBottom,
+    aLeft,
+    aRight
+  ]);
+
   return (
     <NativeSafeAreaProvider
       style={[styles.fill, style]}
@@ -73,7 +91,7 @@ export function SafeAreaProvider({
     >
       {insets != null ? (
         <SafeAreaFrameContext.Provider value={frame}>
-          <SafeAreaInsetsContext.Provider value={insets}>
+          <SafeAreaInsetsContext.Provider value={aInset}>
             {children}
           </SafeAreaInsetsContext.Provider>
         </SafeAreaFrameContext.Provider>
@@ -102,6 +120,7 @@ export function useSafeAreaInsets() {
   if (safeArea == null) {
     throw new Error(NO_INSETS_ERROR);
   }
+
   return safeArea;
 }
 

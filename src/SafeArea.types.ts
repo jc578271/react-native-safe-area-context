@@ -1,5 +1,6 @@
 import type * as React from 'react';
 import type { NativeSyntheticEvent, ViewProps } from 'react-native';
+import type {SharedValue} from "react-native-reanimated";
 
 export type Edge = 'top' | 'right' | 'bottom' | 'left';
 
@@ -8,6 +9,13 @@ export interface EdgeInsets {
   right: number;
   bottom: number;
   left: number;
+}
+
+export interface AEdgeInsets {
+  aTop: SharedValue<number>;
+  aRight: SharedValue<number>;
+  aBottom: SharedValue<number>;
+  aLeft:  SharedValue<number>;
 }
 
 export interface Rect {
