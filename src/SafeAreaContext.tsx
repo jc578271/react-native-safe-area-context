@@ -8,8 +8,8 @@ import type {
   Metrics,
   Rect,
 } from './SafeArea.types';
-import { useDerivedValue, useSharedValue } from "react-native-reanimated";
-import { useMemo } from "react";
+import {useAnimatedReaction, useDerivedValue, useSharedValue, runOnJS} from "react-native-reanimated";
+import {useMemo, useState} from "react";
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -115,13 +115,36 @@ function useParentSafeAreaFrame(): Rect | null {
 const NO_INSETS_ERROR =
   'No safe area value available. Make sure you are rendering `<SafeAreaProvider>` at the top of your app.';
 
-export function useSafeAreaInsets() {
+export function useAnimatedSafeAreaInsets() {
   const safeArea = React.useContext(SafeAreaInsetsContext);
   if (safeArea == null) {
     throw new Error(NO_INSETS_ERROR);
   }
 
   return safeArea;
+}
+
+export function useSafeAreaInsets() {
+  const safeArea = React.useContext(SafeAreaInsetsContext);
+  if (safeArea == null) {
+    throw new Error(NO_INSETS_ERROR);
+  }
+
+  const animatedValue = useDerivedValue(() => ({
+    top: safeArea.aTop.value,
+    bottom: safeArea.aBottom.value,
+    left: safeArea.aLeft.value,
+    right: safeArea.aRight.value,
+  }))
+
+  const [value, setValue] = useState(animatedValue.value)
+  useAnimatedReaction(() => animatedValue.value, (cur, prev) => {
+    if (JSON.stringify(cur) !== JSON.stringify(prev)) {
+      runOnJS(setValue)(cur)
+    }
+  }, [])
+
+  return value;
 }
 
 export function useSafeAreaFrame(): Rect {
