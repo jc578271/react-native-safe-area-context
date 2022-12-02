@@ -3,6 +3,7 @@ import { Dimensions, StyleSheet, ViewProps } from 'react-native';
 import { NativeSafeAreaProvider } from './NativeSafeAreaProvider';
 import type {
   AEdgeInsets,
+  ARect,
   EdgeInsets,
   InsetChangedEvent,
   Metrics,
@@ -20,7 +21,7 @@ if (isDev) {
   SafeAreaInsetsContext.displayName = 'SafeAreaInsetsContext';
 }
 
-export const SafeAreaFrameContext = React.createContext<Rect | null>(null);
+export const SafeAreaFrameContext = React.createContext<ARect | null>(null);
 if (isDev) {
   SafeAreaFrameContext.displayName = 'SafeAreaFrameContext';
 }
@@ -45,7 +46,7 @@ export function SafeAreaProvider({
     initialMetrics?.insets ?? initialSafeAreaInsets ?? null,
   );
 
-  const frame = React.useMemo<Rect>(() =>
+  const frame = useSharedValue<Rect>(
     initialMetrics?.frame ??
     {
       // Backwards compat so we render anyway if we don't have frame.
@@ -53,22 +54,28 @@ export function SafeAreaProvider({
       y: 0,
       width: Dimensions.get('window').width,
       height: Dimensions.get('window').height,
-    },[]
+    }
   );
   const onInsetsChange = React.useCallback(
     (event: InsetChangedEvent) => {
       const {
-        nativeEvent: { insets: nextInsets },
+        nativeEvent: { insets: nextInsets, frame: nextFrame },
       } = event;
       insets.value = nextInsets
+      frame.value = nextFrame
     },
-    [insets],
+    [insets, frame],
   );
 
   const aTop = useDerivedValue(() => insets.value ? insets.value.top : 0, [insets])
   const aBottom = useDerivedValue(() => insets.value ? insets.value.bottom : 0, [insets])
   const aLeft = useDerivedValue(() => insets.value ? insets.value.left : 0, [insets])
   const aRight = useDerivedValue(() => insets.value ? insets.value.right : 0, [insets])
+
+  const aX = useDerivedValue(() => frame.value ? frame.value.x : 0, [frame])
+  const aY = useDerivedValue(() => frame.value ? frame.value.y : 0, [frame])
+  const aWidth = useDerivedValue(() => frame.value ? frame.value.width : 0, [frame])
+  const aHeight = useDerivedValue(() => frame.value ? frame.value.height : 0, [frame])
 
 
   const aInset = useMemo(() => ({
@@ -83,6 +90,18 @@ export function SafeAreaProvider({
     aRight
   ]);
 
+  const aFrame = useMemo(() => ({
+    aX,
+    aY,
+    aWidth,
+    aHeight
+  }), [
+    aX,
+    aY,
+    aWidth,
+    aHeight
+  ])
+
   return (
     <NativeSafeAreaProvider
       style={[styles.fill, style]}
@@ -90,7 +109,7 @@ export function SafeAreaProvider({
       {...others}
     >
       {insets != null ? (
-        <SafeAreaFrameContext.Provider value={frame}>
+        <SafeAreaFrameContext.Provider value={aFrame}>
           <SafeAreaInsetsContext.Provider value={aInset}>
             {children}
           </SafeAreaInsetsContext.Provider>
@@ -108,7 +127,7 @@ function useParentSafeAreaInsets() {
   return React.useContext(SafeAreaInsetsContext);
 }
 
-function useParentSafeAreaFrame(): Rect | null {
+function useParentSafeAreaFrame() {
   return React.useContext(SafeAreaFrameContext);
 }
 
@@ -147,12 +166,35 @@ export function useSafeAreaInsets() {
   return value;
 }
 
-export function useSafeAreaFrame(): Rect {
+export function useAnimatedSafeAreaFrame() {
   const frame = React.useContext(SafeAreaFrameContext);
   if (frame == null) {
     throw new Error(NO_INSETS_ERROR);
   }
   return frame;
+}
+
+export function useSafeAreaFrame() {
+  const frame = React.useContext(SafeAreaFrameContext);
+  if (frame == null) {
+    throw new Error(NO_INSETS_ERROR);
+  }
+
+  const animatedValue = useDerivedValue(() => ({
+    x: frame.aX.value,
+    y: frame.aY.value,
+    width: frame.aWidth.value,
+    height: frame.aHeight.value,
+  }))
+
+  const [value, setValue] = useState(animatedValue.value)
+  useAnimatedReaction(() => animatedValue.value, (cur, prev) => {
+    if (JSON.stringify(cur) !== JSON.stringify(prev)) {
+      runOnJS(setValue)(cur)
+    }
+  }, [])
+
+  return value;
 }
 
 export type WithSafeAreaInsetsProps = {

@@ -25,6 +25,13 @@ export interface Rect {
   height: number;
 }
 
+export interface ARect {
+  aX: SharedValue<number>;
+  aY: SharedValue<number>;
+  aWidth: SharedValue<number>;
+  aHeight: SharedValue<number>;
+}
+
 export interface Metrics {
   insets: EdgeInsets;
   frame: Rect;
