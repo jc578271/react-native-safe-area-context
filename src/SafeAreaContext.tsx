@@ -9,7 +9,7 @@ import type {
   Metrics,
   Rect,
 } from './SafeArea.types';
-import {useAnimatedReaction, useDerivedValue, useSharedValue, runOnJS} from "react-native-reanimated";
+import {useAnimatedReaction, useDerivedValue, useSharedValue, runOnJS, SharedValue} from "react-native-reanimated";
 import {useState} from "react";
 
 const isDev = process.env.NODE_ENV !== 'production';
@@ -33,6 +33,10 @@ export interface SafeAreaProviderProps extends ViewProps {
    * @deprecated
    */
   initialSafeAreaInsets?: EdgeInsets | null;
+}
+
+const useSafeAreaContext = (props: { animatedInsets: SharedValue<number> }) => {
+  return
 }
 
 export function SafeAreaProvider({
@@ -67,15 +71,15 @@ export function SafeAreaProvider({
     [insets, frame],
   );
 
-  const aTop = useDerivedValue(() => insets.value ? insets.value.top : 0, [insets])
-  const aBottom = useDerivedValue(() => insets.value ? insets.value.bottom : 0, [insets])
-  const aLeft = useDerivedValue(() => insets.value ? insets.value.left : 0, [insets])
-  const aRight = useDerivedValue(() => insets.value ? insets.value.right : 0, [insets])
+  const aTop = useDerivedValue(() => insets.value ? insets.value.top : 0)
+  const aBottom = useDerivedValue(() => insets.value ? insets.value.bottom : 0)
+  const aLeft = useDerivedValue(() => insets.value ? insets.value.left : 0)
+  const aRight = useDerivedValue(() => insets.value ? insets.value.right : 0)
 
-  const aX = useDerivedValue(() => frame.value ? frame.value.x : 0, [frame])
-  const aY = useDerivedValue(() => frame.value ? frame.value.y : 0, [frame])
-  const aWidth = useDerivedValue(() => frame.value ? frame.value.width : 0, [frame])
-  const aHeight = useDerivedValue(() => frame.value ? frame.value.height : 0, [frame])
+  const aX = useDerivedValue(() => frame.value ? frame.value.x : 0)
+  const aY = useDerivedValue(() => frame.value ? frame.value.y : 0)
+  const aWidth = useDerivedValue(() => frame.value ? frame.value.width : 0)
+  const aHeight = useDerivedValue(() => frame.value ? frame.value.height : 0)
 
 
   const aInset = {
@@ -110,14 +114,6 @@ export function SafeAreaProvider({
 const styles = StyleSheet.create({
   fill: { flex: 1 },
 });
-
-function useParentSafeAreaInsets() {
-  return React.useContext(SafeAreaInsetsContext);
-}
-
-function useParentSafeAreaFrame() {
-  return React.useContext(SafeAreaFrameContext);
-}
 
 const NO_INSETS_ERROR =
   'No safe area value available. Make sure you are rendering `<SafeAreaProvider>` at the top of your app.';
