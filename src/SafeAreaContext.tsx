@@ -78,29 +78,19 @@ export function SafeAreaProvider({
   const aHeight = useDerivedValue(() => frame.value ? frame.value.height : 0, [frame])
 
 
-  const aInset = useMemo(() => ({
+  const aInset = {
     aTop,
     aBottom,
     aLeft,
     aRight
-  }), [
-    aTop,
-    aBottom,
-    aLeft,
-    aRight
-  ]);
+  };
 
-  const aFrame = useMemo(() => ({
+  const aFrame = {
     aX,
     aY,
     aWidth,
     aHeight
-  }), [
-    aX,
-    aY,
-    aWidth,
-    aHeight
-  ])
+  }
 
   return (
     <NativeSafeAreaProvider
@@ -108,13 +98,11 @@ export function SafeAreaProvider({
       onInsetsChange={onInsetsChange}
       {...others}
     >
-      {insets != null ? (
-        <SafeAreaFrameContext.Provider value={aFrame}>
-          <SafeAreaInsetsContext.Provider value={aInset}>
-            {children}
-          </SafeAreaInsetsContext.Provider>
-        </SafeAreaFrameContext.Provider>
-      ) : null}
+      <SafeAreaFrameContext.Provider value={aFrame}>
+        <SafeAreaInsetsContext.Provider value={aInset}>
+          {children}
+        </SafeAreaInsetsContext.Provider>
+      </SafeAreaFrameContext.Provider>
     </NativeSafeAreaProvider>
   );
 }
