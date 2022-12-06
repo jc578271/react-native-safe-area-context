@@ -10,7 +10,7 @@ import type {
   Rect,
 } from './SafeArea.types';
 import {useAnimatedReaction, useDerivedValue, useSharedValue, runOnJS} from "react-native-reanimated";
-import {useMemo, useState} from "react";
+import {useState} from "react";
 
 const isDev = process.env.NODE_ENV !== 'production';
 
