@@ -9,7 +9,7 @@ import type {
   Metrics,
   Rect,
 } from './SafeArea.types';
-import {useAnimatedReaction, useDerivedValue, useSharedValue, runOnJS, SharedValue} from "react-native-reanimated";
+import {useAnimatedReaction, useDerivedValue, useSharedValue, runOnJS} from "react-native-reanimated";
 import {useState} from "react";
 
 const isDev = process.env.NODE_ENV !== 'production';
