@@ -35,10 +35,6 @@ export interface SafeAreaProviderProps extends ViewProps {
   initialSafeAreaInsets?: EdgeInsets | null;
 }
 
-const useSafeAreaContext = (props: { animatedInsets: SharedValue<number> }) => {
-  return
-}
-
 export function SafeAreaProvider({
  children,
  initialMetrics,
