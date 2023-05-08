@@ -2,7 +2,8 @@
   "name": "react-native-safe-area-context",
   "version": "4.4.1",
   "description": "A flexible way to handle safe area, also works on Android and web.",
-  "main": "src/index.tsx",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "sideEffects": false,
   "author": "Janic Duplessis <janicduplessis@gmail.com>",
   "contributors": [
@@ -11,6 +12,7 @@
   "homepage": "https://github.com/th3rdwave/react-native-safe-area-context#readme",
   "license": "MIT",
   "scripts": {
+    "prepare": "tsc -b"
   },
   "files": [
     "lib",
