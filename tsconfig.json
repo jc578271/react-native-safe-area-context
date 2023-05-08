@@ -1,40 +1,24 @@
 {
-  /* -- default -- */
-  "compileOnSave": false,
   "compilerOptions": {
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "pretty": true,
-    "moduleResolution": "node",
-    "target": "es5",
-    "downlevelIteration": true,
+    "allowJs": false,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
     "esModuleInterop": true,
-    "jsx": "react",
-    "strictNullChecks": true,
-    "noImplicitAny": true,
-    "sourceMap": true,
-    "noEmitOnError": false,
-    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-native",
+    "lib": ["dom", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noStrictGenericChecks": false,
     "noUnusedLocals": true,
-    "importHelpers": true,
+    "noUnusedParameters": true,
+    "noUncheckedIndexedAccess": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "es2015",
-      "es2016",
-      "es2017",
-      "es2018",
-      "esnext.asynciterable"
-    ],
-    "types": ["node"],
-
-    /* -- your custom (required fields) -- */
-    "typeRoots": ["node_modules/@types"],
-    "tsBuildInfoFile": "lib/tsconfig.tsbuildinfo",
-    "outDir": "./lib",
-    "rootDir": "./src"
+    "strict": true,
+    "target": "esnext"
   },
   "include": [
     "src",
