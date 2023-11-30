@@ -42,14 +42,14 @@ export function SafeAreaProvider({
   style,
   ...others
 }: SafeAreaProviderProps) {
-  const parentInsets = useParentSafeAreaInsets();
-  const parentFrame = useParentSafeAreaFrame();
+  // const parentInsets = useParentSafeAreaInsets();
+  // const parentFrame = useParentSafeAreaFrame();
   const insets = useSharedValue<EdgeInsets | null>(
-    initialMetrics?.insets ?? initialSafeAreaInsets ?? parentInsets ?? null,
+    initialMetrics?.insets ?? initialSafeAreaInsets ?? null,
   );
   const frame = useSharedValue<Rect>(
     initialMetrics?.frame ??
-      parentFrame ?? {
+      {
         // Backwards compat so we render anyway if we don't have frame.
         x: 0,
         y: 0,
@@ -110,7 +110,7 @@ export function SafeAreaProvider({
 
   return (
     <NativeSafeAreaProvider
-      style={StyleSheet.compose(styles.fill, style)}
+      style={[styles.fill, style]}
       onInsetsChange={onInsetsChange}
       {...others}
     >
@@ -129,13 +129,13 @@ const styles = StyleSheet.create({
   fill: { flex: 1 },
 });
 
-function useParentSafeAreaInsets(): EdgeInsets | null {
-  return React.useContext(SafeAreaInsetsContext);
-}
-
-function useParentSafeAreaFrame(): Rect | null {
-  return React.useContext(SafeAreaFrameContext);
-}
+// function useParentSafeAreaInsets(): EdgeInsets | null {
+//   return React.useContext(SafeAreaInsetsContext);
+// }
+//
+// function useParentSafeAreaFrame(): Rect | null {
+//   return React.useContext(SafeAreaFrameContext);
+// }
 
 const NO_INSETS_ERROR =
   'No safe area value available. Make sure you are rendering `<SafeAreaProvider>` at the top of your app.';
