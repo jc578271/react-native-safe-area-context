@@ -1,8 +1,9 @@
 /* global jest */
+import React, { useContext } from 'react';
+import type { Metrics } from '../src/SafeArea.types';
+import type { SafeAreaProviderProps } from '../src/SafeAreaContext';
 
-import React from 'react';
-
-const MOCK_INITIAL_METRICS = {
+const MOCK_INITIAL_METRICS: Metrics = {
   frame: {
     width: 320,
     height: 640,
@@ -22,8 +23,20 @@ const RNSafeAreaContext = jest.requireActual('react-native-safe-area-context');
 export default {
   ...RNSafeAreaContext,
   initialWindowMetrics: MOCK_INITIAL_METRICS,
+  useSafeAreaInsets: () => {
+    return (
+      useContext(RNSafeAreaContext.SafeAreaInsetsContext) ??
+      MOCK_INITIAL_METRICS.insets
+    );
+  },
+  useSafeAreaFrame: () => {
+    return (
+      useContext(RNSafeAreaContext.SafeAreaFrameContext) ??
+      MOCK_INITIAL_METRICS.frame
+    );
+  },
   // Provide a simpler implementation with default values.
-  SafeAreaProvider: ({ children, initialMetrics }) => {
+  SafeAreaProvider: ({ children, initialMetrics }: SafeAreaProviderProps) => {
     return (
       <RNSafeAreaContext.SafeAreaFrameContext.Provider
         value={initialMetrics?.frame ?? MOCK_INITIAL_METRICS.frame}

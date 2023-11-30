@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Dimensions, StyleSheet, ViewProps } from 'react-native';
+import { Dimensions, StyleSheet, type ViewProps } from 'react-native';
 import { NativeSafeAreaProvider } from './NativeSafeAreaProvider';
 import type {
   AEdgeInsets,
@@ -10,7 +10,7 @@ import type {
   Rect,
 } from './SafeArea.types';
 import {useAnimatedReaction, useDerivedValue, useSharedValue, runOnJS} from "react-native-reanimated";
-import {useState} from "react";
+import {useMemo, useState} from "react";
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -36,36 +36,53 @@ export interface SafeAreaProviderProps extends ViewProps {
 }
 
 export function SafeAreaProvider({
- children,
- initialMetrics,
- initialSafeAreaInsets,
- style,
- ...others
+  children,
+  initialMetrics,
+  initialSafeAreaInsets,
+  style,
+  ...others
 }: SafeAreaProviderProps) {
+  const parentInsets = useParentSafeAreaInsets();
+  const parentFrame = useParentSafeAreaFrame();
   const insets = useSharedValue<EdgeInsets | null>(
-    initialMetrics?.insets ?? initialSafeAreaInsets ?? null,
+    initialMetrics?.insets ?? initialSafeAreaInsets ?? parentInsets ?? null,
   );
-
   const frame = useSharedValue<Rect>(
     initialMetrics?.frame ??
-    {
-      // Backwards compat so we render anyway if we don't have frame.
-      x: 0,
-      y: 0,
-      width: Dimensions.get('window').width,
-      height: Dimensions.get('window').height,
-    }
+      parentFrame ?? {
+        // Backwards compat so we render anyway if we don't have frame.
+        x: 0,
+        y: 0,
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height,
+      },
   );
-  const onInsetsChange = React.useCallback(
-    (event: InsetChangedEvent) => {
-      const {
-        nativeEvent: { insets: nextInsets, frame: nextFrame },
-      } = event;
-      insets.value = nextInsets
-      frame.value = nextFrame
-    },
-    [insets, frame],
-  );
+  const onInsetsChange = React.useCallback((event: InsetChangedEvent) => {
+    const {
+      nativeEvent: { frame: nextFrame, insets: nextInsets },
+    } = event;
+
+      if (
+        // Backwards compat with old native code that won't send frame.
+        nextFrame &&
+        (nextFrame.height !== frame.value.height ||
+          nextFrame.width !== frame.value.width ||
+          nextFrame.x !== frame.value.x ||
+          nextFrame.y !== frame.value.y)
+      ) {
+        frame.value = nextFrame;
+      }
+
+      if (
+        !insets.value ||
+        nextInsets.bottom !== insets.value.bottom ||
+        nextInsets.left !== insets.value.left ||
+        nextInsets.right !== insets.value.right ||
+        nextInsets.top !== insets.value.top
+      ) {
+        insets.value = nextInsets;
+      }
+  }, []);
 
   const aTop = useDerivedValue(() => insets.value ? insets.value.top : 0)
   const aBottom = useDerivedValue(() => insets.value ? insets.value.bottom : 0)
@@ -77,32 +94,33 @@ export function SafeAreaProvider({
   const aWidth = useDerivedValue(() => frame.value ? frame.value.width : 0)
   const aHeight = useDerivedValue(() => frame.value ? frame.value.height : 0)
 
-
-  const aInset = {
+  const aInset = useMemo(() => ({
     aTop,
     aBottom,
     aLeft,
     aRight
-  };
+  }), []);
 
-  const aFrame = {
+  const aFrame = useMemo(() => ({
     aX,
     aY,
     aWidth,
     aHeight
-  }
+  }), [])
 
   return (
     <NativeSafeAreaProvider
-      style={[styles.fill, style]}
+      style={StyleSheet.compose(styles.fill, style)}
       onInsetsChange={onInsetsChange}
       {...others}
     >
-      <SafeAreaFrameContext.Provider value={aFrame}>
-        <SafeAreaInsetsContext.Provider value={aInset}>
-          {children}
-        </SafeAreaInsetsContext.Provider>
-      </SafeAreaFrameContext.Provider>
+      {insets != null ? (
+        <SafeAreaFrameContext.Provider value={aFrame}>
+          <SafeAreaInsetsContext.Provider value={aInset}>
+            {children}
+          </SafeAreaInsetsContext.Provider>
+        </SafeAreaFrameContext.Provider>
+      ) : null}
     </NativeSafeAreaProvider>
   );
 }
@@ -110,6 +128,14 @@ export function SafeAreaProvider({
 const styles = StyleSheet.create({
   fill: { flex: 1 },
 });
+
+function useParentSafeAreaInsets(): EdgeInsets | null {
+  return React.useContext(SafeAreaInsetsContext);
+}
+
+function useParentSafeAreaFrame(): Rect | null {
+  return React.useContext(SafeAreaFrameContext);
+}
 
 const NO_INSETS_ERROR =
   'No safe area value available. Make sure you are rendering `<SafeAreaProvider>` at the top of your app.';
@@ -181,10 +207,21 @@ export type WithSafeAreaInsetsProps = {
   insets: EdgeInsets;
 };
 
+export function withSafeAreaInsets<T>(
+  WrappedComponent: React.ComponentType<T & WithSafeAreaInsetsProps>,
+): React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<T> & React.RefAttributes<unknown>
+> {
+  return React.forwardRef((props: T, ref: React.Ref<unknown>) => {
+    const insets = useSafeAreaInsets();
+    return <WrappedComponent {...props} insets={insets} ref={ref} />;
+  });
+}
+
 /**
  * @deprecated
  */
-export function useSafeArea() {
+export function useSafeArea(): EdgeInsets {
   return useSafeAreaInsets();
 }
 
