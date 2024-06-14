@@ -1,6 +1,7 @@
 import type * as React from 'react';
 import type { NativeSyntheticEvent, ViewProps } from 'react-native';
 import NativeSafeAreaView from './specs/NativeSafeAreaView';
+import type {SharedValue} from "react-native-reanimated";
 
 export type Edge = 'top' | 'right' | 'bottom' | 'left';
 export type EdgeMode = 'off' | 'additive' | 'maximum';
@@ -15,11 +16,25 @@ export interface EdgeInsets {
   left: number;
 }
 
+export interface AEdgeInsets {
+  aTop: SharedValue<number>;
+  aRight: SharedValue<number>;
+  aBottom: SharedValue<number>;
+  aLeft:  SharedValue<number>;
+}
+
 export interface Rect {
   x: number;
   y: number;
   width: number;
   height: number;
+}
+
+export interface ARect {
+  aX: SharedValue<number>;
+  aY: SharedValue<number>;
+  aWidth: SharedValue<number>;
+  aHeight: SharedValue<number>;
 }
 
 export interface Metrics {

@@ -2,10 +2,8 @@
   "name": "react-native-safe-area-context",
   "version": "4.10.4",
   "description": "A flexible way to handle safe area, also works on Android and web.",
-  "main": "lib/commonjs/index.js",
-  "module": "lib/module/index.js",
+  "main": "src/index.tsx",
   "react-native": "src/index.tsx",
-  "types": "lib/typescript/src/index.d.ts",
   "source": "src/index.tsx",
   "sideEffects": false,
   "files": [
@@ -41,7 +39,7 @@
     "format:check": "yarn format:prettier:check && yarn format:clang:check && yarn format:spotless:check",
     "format:write": "yarn format:prettier:write && yarn format:clang:write && yarn format:spotless:write",
     "release": "release-it",
-    "prepare": "bob build"
+    "build": "bob build"
   },
   "keywords": [
     "react-native",
@@ -84,6 +82,7 @@
     "react-dom": "^18.2.0",
     "react-native": "^0.73.0",
     "react-native-builder-bob": "^0.23.2",
+    "react-native-reanimated": "^3.6.0",
     "react-test-renderer": "^18.2.0",
     "release-it": "^17.0.1",
     "typescript": "^5.3.3"
