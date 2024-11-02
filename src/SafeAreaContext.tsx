@@ -59,7 +59,7 @@ export function SafeAreaProvider({
         height: Dimensions.get('window').height,
       },
   );
-  const onInsetsChange = React.useCallback((event: InsetChangedEvent) => {
+  const _onInsetsChange = React.useCallback((event: InsetChangedEvent) => {
     const {
       nativeEvent: { frame: nextFrame, insets: nextInsets },
     } = event;
@@ -114,7 +114,7 @@ export function SafeAreaProvider({
   return (
     <NativeSafeAreaProvider
       style={[styles.fill, style]}
-      onInsetsChange={onInsetsChange}
+      onInsetsChange={_onInsetsChange}
       {...others}
     >
       {insets != null ? (
