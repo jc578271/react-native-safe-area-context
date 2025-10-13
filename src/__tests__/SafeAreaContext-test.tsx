@@ -1,8 +1,7 @@
 import { describe, expect, it, jest } from '@jest/globals';
+import { act, render, screen } from '@testing-library/react-native';
 import * as React from 'react';
 import { View } from 'react-native';
-import * as ReactTestRenderer from 'react-test-renderer';
-import { NativeSafeAreaProvider } from '../NativeSafeAreaProvider';
 import type { Metrics } from '../SafeArea.types';
 import {
   SafeAreaProvider,
@@ -40,66 +39,64 @@ const PrintInsetsTestView = () => {
 
 describe('SafeAreaContext', () => {
   it('renders', () => {
-    const component = ReactTestRenderer.create(<SafeAreaProvider />);
-    expect(component).toMatchSnapshot();
+    const { toJSON } = render(<SafeAreaProvider />);
+    expect(toJSON()).toMatchSnapshot();
   });
 
   it('does not render child until inset values are received', () => {
-    const component = ReactTestRenderer.create(
+    const { toJSON } = render(
       <SafeAreaProvider>
         <PrintInsetsTestView />
       </SafeAreaProvider>,
     );
-    expect(component).toMatchSnapshot();
+    expect(toJSON()).toMatchSnapshot();
   });
 
-  it('renders child when inset values are received', () => {
-    const component = ReactTestRenderer.create(
-      <SafeAreaProvider>
+  it('renders child when inset values are received', async () => {
+    const { toJSON } = render(
+      <SafeAreaProvider testID="safe-area-provider">
         <PrintInsetsTestView />
       </SafeAreaProvider>,
     );
-    expect(component).toMatchSnapshot();
-    const { onInsetsChange } = component.root.findByType(
-      NativeSafeAreaProvider,
-    ).props;
-    ReactTestRenderer.act(() => {
-      onInsetsChange({
+    expect(toJSON()).toMatchSnapshot();
+    const element = await screen.findByTestId('safe-area-provider');
+    act(() => {
+      element.props.onInsetsChange({
         nativeEvent: TEST_METRICS_1,
       });
     });
-    expect(component).toMatchSnapshot();
+    expect(toJSON()).toMatchSnapshot();
   });
 
   it('supports setting initial insets', () => {
-    const component = ReactTestRenderer.create(
+    const { toJSON } = render(
       <SafeAreaProvider initialMetrics={TEST_METRICS_1}>
         <PrintInsetsTestView />
       </SafeAreaProvider>,
     );
-    expect(component).toMatchSnapshot();
+    expect(toJSON()).toMatchSnapshot();
   });
 
   it('uses parent insets when available', () => {
-    const component = ReactTestRenderer.create(
+    const { toJSON } = render(
       <SafeAreaProvider initialMetrics={TEST_METRICS_1}>
         <SafeAreaProvider>
           <PrintInsetsTestView />
         </SafeAreaProvider>
       </SafeAreaProvider>,
     );
-    expect(component).toMatchSnapshot();
+    expect(toJSON()).toMatchSnapshot();
   });
 
   it('uses inner insets', () => {
-    const component = ReactTestRenderer.create(
+    const { toJSON } = render(
       <SafeAreaProvider initialMetrics={TEST_METRICS_1}>
         <SafeAreaProvider initialMetrics={TEST_METRICS_2}>
           <PrintInsetsTestView />
         </SafeAreaProvider>
       </SafeAreaProvider>,
     );
-    expect(component).toMatchSnapshot();
+    expect(toJSON()).toMatchSnapshot();
   });
 
   it('throws when no provider is rendered', () => {
@@ -112,7 +109,7 @@ describe('SafeAreaContext', () => {
         }
       });
     expect(() => {
-      ReactTestRenderer.create(<PrintInsetsTestView />);
+      render(<PrintInsetsTestView />);
     }).toThrow(
       'No safe area value available. Make sure you are rendering `<SafeAreaProvider>` at the top of your app.',
     );

@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
+import { render } from '@testing-library/react-native';
 import * as React from 'react';
 import { View } from 'react-native';
-import * as ReactTestRenderer from 'react-test-renderer';
 import type { Metrics } from '../SafeArea.types';
 import { SafeAreaProvider } from '../SafeAreaContext';
 import { SafeAreaView } from '../SafeAreaView';
@@ -13,40 +13,40 @@ const INITIAL_METRICS: Metrics = {
 
 describe('SafeAreaView', () => {
   it('renders', () => {
-    const component = ReactTestRenderer.create(
+    const { toJSON } = render(
       <SafeAreaProvider initialMetrics={INITIAL_METRICS}>
         <SafeAreaView>
           <View />
         </SafeAreaView>
       </SafeAreaProvider>,
     );
-    expect(component).toMatchSnapshot();
+    expect(toJSON()).toMatchSnapshot();
   });
 
   it('can override padding styles', () => {
-    const component = ReactTestRenderer.create(
+    const { toJSON } = render(
       <SafeAreaProvider initialMetrics={INITIAL_METRICS}>
         <SafeAreaView style={{ paddingTop: 0 }}>
           <View />
         </SafeAreaView>
       </SafeAreaProvider>,
     );
-    expect(component).toMatchSnapshot();
+    expect(toJSON()).toMatchSnapshot();
   });
 
   it('can set edges', () => {
-    const component = ReactTestRenderer.create(
+    const { toJSON } = render(
       <SafeAreaProvider initialMetrics={INITIAL_METRICS}>
         <SafeAreaView edges={['top', 'bottom']}>
           <View />
         </SafeAreaView>
       </SafeAreaProvider>,
     );
-    expect(component).toMatchSnapshot();
+    expect(toJSON()).toMatchSnapshot();
   });
 
   it('can set edges value type', () => {
-    const component = ReactTestRenderer.create(
+    const { toJSON } = render(
       <SafeAreaProvider initialMetrics={INITIAL_METRICS}>
         <SafeAreaView
           edges={{ top: 'additive', bottom: 'maximum' }}
@@ -56,6 +56,6 @@ describe('SafeAreaView', () => {
         </SafeAreaView>
       </SafeAreaProvider>,
     );
-    expect(component).toMatchSnapshot();
+    expect(toJSON()).toMatchSnapshot();
   });
 });

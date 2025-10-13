@@ -1,5 +1,5 @@
 module.exports = {
-  extends: ['@react-native-community'],
+  extends: ['@react-native'],
   plugins: ['@react-native/eslint-plugin-specs'],
   rules: {
     'react-native/no-inline-styles': 'off',
@@ -7,10 +7,8 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['src/specs/**/*.js'],
-      rules: {
-        '@react-native/specs/react-native-modules': 'error',
-      },
+      files: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
+      extends: ['plugin:testing-library/react'],
     },
   ],
 };

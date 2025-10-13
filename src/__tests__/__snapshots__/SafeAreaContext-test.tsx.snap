@@ -39,6 +39,7 @@ exports[`SafeAreaContext renders child when inset values are received 1`] = `
       undefined,
     ]
   }
+  testID="safe-area-provider"
 />
 `;
 
@@ -53,6 +54,7 @@ exports[`SafeAreaContext renders child when inset values are received 2`] = `
       undefined,
     ]
   }
+  testID="safe-area-provider"
 >
   <View
     style={
