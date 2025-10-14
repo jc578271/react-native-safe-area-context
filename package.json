@@ -72,8 +72,8 @@
     "clang-format": "^1.8.0",
     "commitlint": "^18.4.3",
     "eslint": "^8.55.0",
-    "eslint-plugin-jest": "^27.6.0",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-jest": "^27.6.0",
     "eslint-plugin-prettier": "^5.0.1",
     "husky": "^8.0.3",
     "jest": "^29.7.0",
@@ -137,5 +137,6 @@
     "name": "safeareacontext",
     "type": "all",
     "jsSrcsDir": "./src/specs"
-  }
+  },
+  "dependencies": {}
 }
