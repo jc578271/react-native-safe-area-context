@@ -33,6 +33,7 @@ export interface SafeAreaProviderProps extends ViewProps {
    * @deprecated
    */
   initialSafeAreaInsets?: EdgeInsets | null;
+  onInsetsChange?: (value: EdgeInsets) => void;
 }
 
 export function SafeAreaProvider({
@@ -40,6 +41,7 @@ export function SafeAreaProvider({
   initialMetrics,
   initialSafeAreaInsets,
   style,
+  onInsetsChange: pOnInsetsChange,
   ...others
 }: SafeAreaProviderProps) {
   // const parentInsets = useParentSafeAreaInsets();
@@ -81,8 +83,9 @@ export function SafeAreaProvider({
         nextInsets.top !== insets.value.top
       ) {
         insets.value = nextInsets;
+        pOnInsetsChange?.(nextInsets);
       }
-  }, []);
+  }, [pOnInsetsChange]);
 
   const aTop = useDerivedValue(() => insets.value ? insets.value.top : 0)
   const aBottom = useDerivedValue(() => insets.value ? insets.value.bottom : 0)
