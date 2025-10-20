@@ -40,8 +40,8 @@ export function SafeAreaProvider({
   children,
   initialMetrics,
   initialSafeAreaInsets,
-  onInsetsChange,
   style,
+  onInsetsChange: pOnInsetsChange,
   ...others
 }: SafeAreaProviderProps) {
   // const parentInsets = useParentSafeAreaInsets();
@@ -59,7 +59,7 @@ export function SafeAreaProvider({
         height: Dimensions.get('window').height,
       },
   );
-  const _onInsetsChange = React.useCallback((event: InsetChangedEvent) => {
+  const onInsetsChange = React.useCallback((event: InsetChangedEvent) => {
     const {
       nativeEvent: { frame: nextFrame, insets: nextInsets },
     } = event;
@@ -83,9 +83,9 @@ export function SafeAreaProvider({
         nextInsets.top !== insets.value.top
       ) {
         insets.value = nextInsets;
-        onInsetsChange?.(nextInsets);
+        pOnInsetsChange?.(nextInsets);
       }
-  }, [onInsetsChange]);
+  }, [pOnInsetsChange]);
 
   const aTop = useDerivedValue(() => insets.value ? insets.value.top : 0)
   const aBottom = useDerivedValue(() => insets.value ? insets.value.bottom : 0)
@@ -114,7 +114,7 @@ export function SafeAreaProvider({
   return (
     <NativeSafeAreaProvider
       style={[styles.fill, style]}
-      onInsetsChange={_onInsetsChange}
+      onInsetsChange={onInsetsChange}
       {...others}
     >
       {insets != null ? (
